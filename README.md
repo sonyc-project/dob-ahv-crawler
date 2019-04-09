@@ -9,7 +9,7 @@ After Hour Variances are permits issued by New York City Department of Buildings
 Before running the crawler, you need to install the following libraries for python3:
 
 ```
-python -m pip install scrapy
+python -m pip install scrapy scrapy-fake-useragent
 ```
 
 ## Steps
@@ -27,7 +27,7 @@ python -m pip install scrapy
    1020110001
    ```
 
-   You can also use this CSV file with the list of all BBL's in NYC. Another option is to use [this](http://chriswhong.github.io/plutoplus/) tool to filter for specific BBL's.
+   You can also use the bbls.csv file in this repository which contains the list of all BBL's in NYC. Another option is to use [this](http://chriswhong.github.io/plutoplus/) tool to filter for specific BBL's.
 
 2. Run the actual crawler:
 
@@ -45,6 +45,12 @@ python -m pip install scrapy
    3: Brooklyn
    4: Queens
    5: Staten Island
+   ```
+
+   The logs are stored in `dob-ahv.log`. If you want to follow the progress of the crawler while it runs, type:
+
+   ```
+   tail -f dob-ahv.log
    ```
 
 3. Once the html files are downloaded, run the following script to parse them and output a CSV file:

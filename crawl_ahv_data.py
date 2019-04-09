@@ -39,19 +39,25 @@ class BISSpider(scrapy.Spider):
     custom_settings = {
         'CONCURRENT_REQUESTS': 4,
         'CONCURRENT_REQUESTS_PER_DOMAIN': 4,
-        'DOWNLOAD_DELAY': 0.25,
-        'LOG_FILE': './scrapy.log',
+        'DOWNLOAD_DELAY': 1,
+        'LOG_FILE': './dob-ahv.log',
         'LOG_ENABLED': True,
-        'USER_AGENT': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
+        # 'USER_AGENT': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
+        'FAKEUSERAGENT_FALLBACK': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
         'RETRY_ENABLED': True,
         'RETRY_TIMES': 100,
         'RETRY_HTTP_CODES': [500, 502, 504, 408, 403, 400, 429, 470],
         'HTTPCACHE_ENABLED': True,
-        'HTTPCACHE_DIR': './httpcache'
+        'HTTPCACHE_DIR': './httpcache',
+        'DOWNLOADER_MIDDLEWARES' : {
+            'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+            'scrapy_fake_useragent.middleware.RandomUserAgentMiddleware': 400,
+        }
     }
     handle_httpstatus_list = [503]
     start_urls = []
     outputPath = None
+    count = 0
 
     def __init__(self, urls, outputPath):
         self.start_urls = urls
@@ -63,9 +69,13 @@ class BISSpider(scrapy.Spider):
     # parse result from PropertyBrowseByBBLServlet
     def parse(self, response):
 
+        print(response.request.headers['User-Agent'])
+        print("bbl %d of %d"%(self.count,len(self.start_urls)))
+        self.count+=1
+
         if response.status == 503:
-            print("Retrying parse 503:", response.url)
-            time.sleep(0.25)
+            # print("Retrying parse 503:", response.url)
+            time.sleep(1)
 
             if 'num' in response.meta:
                 response.meta['num'] = int(response.meta['num']) + 1
@@ -125,8 +135,8 @@ class BISSpider(scrapy.Spider):
     def parseAhvList(self, response):
 
         if response.status == 503:
-            print("Retrying parseAhvList 503:", response.url)
-            time.sleep(0.25)
+            # print("Retrying parseAhvList 503:", response.url)
+            time.sleep(1)
 
             if 'num' in response.meta:
                 response.meta['num'] = int(response.meta['num']) + 1
@@ -160,8 +170,8 @@ class BISSpider(scrapy.Spider):
 
         # print("===================================")
         # print("Error parseAhvList:", len(error1), len(error2))
-        print("Start index:", start)
-        print(response.url)
+        # print("Start index:", start)
+        # print(response.url)
         # print("===================================")
 
         # request next page
@@ -195,8 +205,8 @@ class BISSpider(scrapy.Spider):
     def parseAhvDetails(self, response):
 
         if response.status == 503:
-            print("Retrying parseAhvDetails 503:", response.url)
-            time.sleep(0.25)
+            # print("Retrying parseAhvDetails 503:", response.url)
+            time.sleep(1)
 
             if 'num' in response.meta:
                 response.meta['num'] = int(response.meta['num']) + 1
